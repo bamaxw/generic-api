@@ -11,7 +11,7 @@ def read(file_name):
         return file.read()
 
 
-setup(name="jigsawdb-cli",
+setup(name="genericapi",
       author="Maximus Wasylow",
       version='0.0.4',
       author_email="bamwasylow@gmail.com",

@@ -1,5 +1,5 @@
 version = `cat ./VERSION`
-package-name = generic-api
+package-name = genericapi
 
 
 test:
