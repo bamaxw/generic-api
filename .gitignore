@@ -1,0 +1,6 @@
+.coverage
+.mypy*
+__pycache__*
+.ipynb*
+.tags
+dist
