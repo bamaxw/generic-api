@@ -15,12 +15,11 @@ log = logging.getLogger(__name__)
 
 class API(Application):
     def __init__(self,
-                 *a,
                  name: str = 'GenericAPI',
                  settings: Optional[Dict[str, Any]] = None,
                  envdefinition: Optional[Dict[str, Dict[str, Any]]] = None,
                  **kw) -> None:
-        super().__init__(*a, **kw)
+        super().__init__(**kw)
         self.name = name
         self.settings = settings or {}
         self.env = Env(
@@ -49,6 +48,7 @@ class API(Application):
     async def setup(self) -> None:
         self.setup_logging()
         self.setup_swagger()
+        self.setup_routes()
 
     def config(self, key: str) -> Any:
         '''Retrieve key from config'''
@@ -77,3 +77,6 @@ class API(Application):
             setup_swagger(self,
                           swagger_url=url,
                           swagger_from_file=file)
+
+    def setup_routes(self) -> None:
+        raise NotImplementedError()
