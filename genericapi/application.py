@@ -37,13 +37,19 @@ class API(Application):
             )
         )
 
-    @classmethod
-    async def init(cls, *a, **kw) -> 'API':
-        '''Asynchroneously initializes aiohttp Application'''
-        app = cls(*a, **kw)
-        await app.setup()
-        log.info('Application %r setup completed...', app.name)
-        return app
+    async def __aenter__(self) -> 'API':
+        return await self.open()
+
+    async def open(self) -> 'API':
+        await self.setup()
+        log.info('Application %r setup completed...', self.name)
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb) -> None:
+        return await self.close()
+
+    async def close(self) -> None:
+        pass
 
     async def setup(self) -> None:
         self.setup_logging()
