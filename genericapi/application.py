@@ -10,18 +10,22 @@ from aiohttp_swagger import setup_swagger
 from aiohttp.web import Application
 from envparse import Env
 
+from .routes import RouteManager
+
 log = logging.getLogger(__name__)
 
 
 class API(Application):
     def __init__(self,
                  name: str = 'GenericAPI',
+                 prefix: str = '',
                  settings: Optional[Dict[str, Any]] = None,
                  envdefinition: Optional[Dict[str, Dict[str, Any]]] = None,
                  **kw) -> None:
         super().__init__(**kw)
         self.name = name
         self.settings = settings or {}
+        self.route_manager = RouteManager(self, root=prefix)
         self.env = Env(
             **dict(
                 dict(
