@@ -6,8 +6,7 @@ from aiohttp.web_urldispatcher import ResourceRoute
 from aiohttp_cors.cors_config import CorsConfig
 from aiohttp.web import Application
 
-from ..types import AsyncRouteHandler, RawCorsConfig
-from .. import defaults
+from .types import AsyncRouteHandler, RawCorsConfig
 
 DEFAULT_CORS_CONFIG = {
     '*': dict(
