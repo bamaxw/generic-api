@@ -33,4 +33,5 @@ class SerializableException(Exception):
             self._cls = self.__class__.__name__
         self._payload: Dict[str, Any] = {'status': status,
                                          'message': msg,
+                                         'cls': self._cls,
                                          **kw}
