@@ -1,4 +1,20 @@
 from typing import Any, Dict
+from functools import wraps
+
+from aiohttp.web import Response
+
+from .types import AsyncRouteHandler
+from .json import json
+
+
+def catch_serializable_exceptions(handler: AsyncRouteHandler) -> AsyncRouteHandler:
+    @wraps(handler)
+    async def _wrapper(*a, **kw) -> Response:
+        try:
+            return await handler(*a, **kw)
+        except SerializableException as ex:
+            return Response(json.dumps(ex._payload),  #  pylint: disable=protected-access
+                            status=ex._http_status)  #  pylint: disable=protected-access
 
 
 class SerializableException(Exception):
