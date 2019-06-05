@@ -162,6 +162,7 @@ class Client:
         if (str_status in retry_codes
                 or f'{str_status[:2]}x' in retry_codes
                 or f'{str_status[:1]}xx' in retry_codes):
+            log.warning(f'Received response {response} -- retrying...')
             raise ShouldRetry(response)
 
     @contextmanager
