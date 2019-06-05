@@ -19,4 +19,4 @@ setup(name="genericapi",
       long_description=read("README.md"),
       packages=find_packages(),
       python_requires=">=3.7",
-      install_requires=['aiohttp', 'aiohttp_swagger', 'envparse', 'aiohttp_cors'])
+      install_requires=['aiohttp', 'aiohttp_swagger', 'envparse', 'aiohttp_cors', 'tenacity'])

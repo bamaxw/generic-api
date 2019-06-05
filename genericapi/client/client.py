@@ -11,7 +11,7 @@ from tenacity import retry, retry_if_exception_type
 
 from crossroads import CrossRoads
 
-from .json import json
+from ..json import json
 from .utils import cache_for, minutes
 from .config import SessionConfig, PolicyType
 from .signals import ShouldRetry, return_from_signal

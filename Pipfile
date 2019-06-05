@@ -3,10 +3,18 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[[source]]
+url = "https://pypi.inyourarea.co.uk/inyourarea/prod"
+verify_ssl = true
+name = "inyourarea-prod"
+
 [packages]
 aiohttp = "*"
 aiohttp-swagger = "*"
 envparse = "*"
+aiohttp-cors = "*"
+tenacity = "*"
+crossroads = "*"
 
 [dev-packages]
 
