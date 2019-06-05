@@ -11,7 +11,6 @@ def catch_serializable_exceptions(handler: AsyncRouteHandler) -> AsyncRouteHandl
     @wraps(handler)
     async def _wrapper(*a, **kw) -> Response:
         try:
-            print('in catch serializable exceptions')
             return await handler(*a, **kw)
         except SerializableException as ex:
             return Response(json.dumps(ex._payload),  #  pylint: disable=protected-access
