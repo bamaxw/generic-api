@@ -13,7 +13,7 @@ def read(file_name):
 
 setup(name="genericapi",
       author="Maximus Wasylow",
-      version='0.0.16',
+      version='0.0.17',
       author_email="bamwasylow@gmail.com",
       description="Python API for remote jigsaw connections",
       long_description=read("README.md"),
