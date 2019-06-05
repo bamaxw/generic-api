@@ -13,7 +13,7 @@ install-locally:
 	pip install -U .
 
 publish:
-	devpi push "$(package-name)==$(version)" "ai-unit/prod"
+	devpi push "$(package-name)==$(version)" "inyourarea/prod"
 
 vpatch:
 	bumpversion patch

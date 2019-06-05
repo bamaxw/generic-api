@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 from functools import partialmethod
 
 from aiohttp_cors import setup as setup_cors, ResourceOptions as CorsResourceOptions
@@ -63,3 +63,12 @@ class RouteManager:
         if _cors:
             route = _cors.add(route)
         return route
+
+    def add_routes(self, routes: List[dict]) -> None:
+        '''
+        Add batch of routes to application router
+        Each route should be a dictionary containing all required arguments
+        to method RouteManager.add_route
+        '''
+        for route in routes:
+            self.add_route(**route)
