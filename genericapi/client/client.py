@@ -7,7 +7,7 @@ import asyncio
 import logging
 
 from aiohttp import ClientResponse as Response, ClientSession as Session
-from aiohttp.client_exceptions import ConentTypeError
+from aiohttp.client_exceptions import ContentTypeError
 from tenacity import retry, retry_if_exception_type
 
 from crossroads import CrossRoads
@@ -193,7 +193,7 @@ class Client:
                         if cls is not None:
                             raise cls(payload)
                 except ContentTypeError:
-                    raise
+                    pass
             yield res
 
     @asynccontextmanager
