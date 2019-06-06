@@ -1,21 +1,23 @@
 from typing import Any, Dict
 from functools import wraps
 
-from aiohttp.web import Response
+from aiohttp.web import json_response, Response
 
 from .types import AsyncRouteHandler
 from .json import json
 
 
-def catch_serializable_exceptions(handler: AsyncRouteHandler) -> AsyncRouteHandler:
+def with_exception_serializer(handler: AsyncRouteHandler) -> AsyncRouteHandler:
+    '''
+    Wraps a handler function and listens to any errors surfacing
+    if an error gets caught by the wrapper -- it gets serialized and returned to the user
+    '''
     @wraps(handler)
     async def _wrapper(*a, **kw) -> Response:
         try:
             return await handler(*a, **kw)
-        except SerializableException as ex:
-            return Response(text=json.dumps(ex._payload),  #  pylint: disable=protected-access
-                            status=ex._http_status,  #  pylint: disable=protected-access
-                            content_type='application/json')
+        except Exception as exc:  #  pylint: disable=broad-except
+            return SerializableException.get_response(exc)
     return _wrapper
 
 
@@ -25,15 +27,29 @@ class SerializableException(Exception):
     As a http response
     '''
     _http_status: int
-    _cls: str
-    def __init__(self, msg: str, code: int = 0, status: str = 'error', **kw) -> None:
+    def __init__(self, msg: str, code: int = 0, status: str = 'error', **params) -> None:
         super().__init__(msg)
-        self._http_status = code or self._http_status
-        try:
-            self._cls = self._cls
-        except AttributeError:
-            self._cls = self.__class__.__name__
-        self._payload: Dict[str, Any] = {'status': status,
-                                         'message': msg,
-                                         'cls': self._cls,
-                                         'args': kw}
+        self.http_status = code or self._http_status
+        self.response_status = status
+        self.response_params = params
+
+    @classmethod
+    def get_response(cls, exc: Exception) -> Response:
+        '''Turns an error into a response'''
+        payload: Dict[str, Any] = {'status': 'error',
+                                   'exc': cls.serialize_exc(exc),
+                                   'message': 'an error has been raised'}
+        status = 500
+        if isinstance(exc, cls):
+            payload['status'] = exc.response_status
+            payload['message'] = payload['exc']['message']
+            payload['exc']['params'] = exc.response_params
+            status = exc.http_status
+        return json_response(payload, status=status, dumps=json.dumps)
+
+    @staticmethod
+    def serialize_exc(exc: Exception) -> Dict[str, str]:
+        '''Serializes any exception'''
+        return {'class': exc.__class__.__qualname__,
+                'module': exc.__class__.__module__,
+                'message': str(exc)}

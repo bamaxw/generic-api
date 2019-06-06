@@ -5,7 +5,7 @@ from aiohttp_cors.cors_config import CorsConfig
 from aiohttp.web_urldispatcher import ResourceRoute
 from aiohttp.web import Application
 
-from ..exceptions import catch_serializable_exceptions
+from ..exceptions import with_exception_serializer
 from ..types import AsyncRouteHandler, RawCorsConfig
 
 DEFAULT_CORS_CONFIG = {
@@ -57,7 +57,7 @@ class RouteManager:
              cors    -- pass cors config to override the default cors'''
         route = self.app.router.add_route(method=method,
                                           path=f'{self.root}{path}',
-                                          handler=catch_serializable_exceptions(handler),
+                                          handler=with_exception_serializer(handler),
                                           name=name)
         _cors = self._get_cors_config(cors, no_cors)
         if _cors:

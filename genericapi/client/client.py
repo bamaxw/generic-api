@@ -9,6 +9,7 @@ import logging
 from aiohttp import ClientResponse as Response, ClientSession as Session
 from aiohttp.client_exceptions import ContentTypeError
 from tenacity import retry, retry_if_exception_type
+from aiologger import Logger
 
 from crossroads import CrossRoads
 
@@ -17,7 +18,7 @@ from .utils import cache_for, minutes
 from .config import SessionConfig, PolicyType
 from .signals import ShouldRetry, return_from_signal
 
-log = logging.getLogger(__name__)
+log = Logger.with_default_handlers()
 
 
 class Client:
@@ -133,8 +134,10 @@ class Client:
         corresponding service's host and saves it to self._host
         '''
         if self.__resolving:
+            log.debug('Host resolution already under way -- awaiting host resolution...')
             await self._wait_for_host_resolution()
             return
+        log.warning('Host resolution triggered...')
         self.__resolving = True
         self.__resolved = asyncio.Event()
         async with CrossRoads(self.env) as crossroads:
