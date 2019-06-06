@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e1818669ca68db63b713b7e3bcf46a6b97a3ee4d8312c7c6bcad70794f68f03a"
+            "sha256": "19f8d8f819368521b1d5fde93c4a9fd83b9d6e5974e921bb767f5485227aa1bd"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -77,6 +77,13 @@
             ],
             "index": "pypi",
             "version": "==1.0.5"
+        },
+        "aiolog": {
+            "hashes": [
+                "sha256:438fcb63ecec3a2075e15ede253d9436675a0b6ed286653a8f70ec5ba9033389"
+            ],
+            "index": "pypi",
+            "version": "==0.0.2"
         },
         "async-generator": {
             "hashes": [

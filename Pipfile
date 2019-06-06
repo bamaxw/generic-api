@@ -15,6 +15,7 @@ envparse = "*"
 aiohttp-cors = "*"
 tenacity = "*"
 crossroads = "*"
+aiolog = "*"
 
 [dev-packages]
 

@@ -5,13 +5,16 @@ with simplified initialization and setup
 from typing import Any, Dict, Optional
 import logging.config
 import logging
+import asyncio
 
 from aiohttp_swagger import setup_swagger
 from aiohttp.web import Application
-from aiologger import Logger
 from envparse import Env
+import aiolog
 
 from .routes import RouteManager
+
+log = logging.getLogger(__name__)
 
 
 class API(Application):
@@ -22,7 +25,6 @@ class API(Application):
                  envdefinition: Optional[Dict[str, Dict[str, Any]]] = None,
                  **kw) -> None:
         super().__init__(**kw)
-        self.log = Logger.with_default_handlers(name=self.__class__.__module__)
         self.name = name
         self.settings = settings or {}
         self.route_manager = RouteManager(self, root=prefix)
@@ -46,8 +48,7 @@ class API(Application):
 
     async def open(self) -> 'API':
         await self.setup()
-        self.log.info('Application %r setup completed...', self.name)
-        await self.log.shutdown()
+        log.info('Application %r setup completed...', self.name)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
@@ -73,6 +74,8 @@ class API(Application):
         Sets up logging using file specified in settings['logging_conf'] or env LOGGING_CONF
         and sets the root log-level to LOG_LEVEL (default=WARNING)
         '''
+        aiolog.start(loop=asyncio.get_event_loop())
+        aiolog.setup_aiohttp(self)
         if self.config('logging_conf'):
             logging.config.fileConfig(self.config('logging_conf'))
             logging.getLogger().setLevel(self.config('log_level'))
@@ -84,7 +87,7 @@ class API(Application):
         if self.config('swagger_enabled'):
             url = self.config('swagger_url')
             file = self.config('swagger_file')
-            self.log.info('Setting up swagger from file %r [url: %r]', file, url)
+            log.info('Setting up swagger from file %r [url: %r]', file, url)
             setup_swagger(self,
                           swagger_url=url,
                           swagger_from_file=file)
