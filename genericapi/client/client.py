@@ -19,7 +19,6 @@ from ..json import json
 from .signals import ShouldRetry, return_from_signal
 from .config import SessionConfig, PolicyType
 
-log = Logger.with_default_handlers()
 
 
 class Client:
@@ -27,7 +26,7 @@ class Client:
     # like so
     # Client attributes
     __slots__ = ('_service_name', '_prefix', '_host', 'env', 'config', '__resolving',
-                 '__resolved', '_static', '_session', 'retriable_issue', 'exceptions')
+                 '__resolved', '_static', '_session', 'retriable_issue', 'log')
     host: Optional[str] = None
     service_name: Optional[str] = None
     prefix: str = ''
@@ -43,8 +42,8 @@ class Client:
                  service_name: Optional[str] = None,
                  prefix: str = '',
                  host: Optional[str] = None,
-                 config: Union[None, Dict[str, Any], SessionConfig] = None,
-                 exceptions: Optional[Dict[str, Type[Exception]]] = None) -> None:
+                 config: Union[None, Dict[str, Any], SessionConfig] = None) -> None:
+        self.log = Logger.with_default_handlers(name=self.__class__.__module__)
         # Validate arguments
         if self.service_name and service_name:
             raise TypeError("'service_name' specified at both class and instance level")
@@ -72,10 +71,10 @@ class Client:
             self._static = False
             if not service_name and not env:
                 raise TypeError("In auto-resolve mode both 'service_name' and 'env' must be provided")
-            log.info('Running in auto-resolve mode')
+            self.log.info('Running in auto-resolve mode')
         else:
             self._static = True
-            log.info('Running in static mode with host: %r', host)
+            self.log.info('Running in static mode with host: %r', host)
         self.__resolving = False
         self.__resolved: asyncio.Event
         self._host = host
@@ -87,10 +86,6 @@ class Client:
                                                         retry=retry_if_exception_type(ShouldRetry),
                                                         sleep=asyncio.sleep)(self._retriable_issue))
         self._session = Session()
-        try:
-            self.exceptions = exceptions or self.exceptions
-        except AttributeError:
-            self.exceptions = {}
 
     async def __aenter__(self) -> 'AutoResolveClient':
         await self.open()
@@ -111,11 +106,6 @@ class Client:
         '''Close underlying async connections'''
         await self._session.close()
 
-
-    def register_exception_cls(self, name: str, cls: Type[Exception]) -> None:
-        '''Registers an exception class to be used on appropriate error responses'''
-        self.exceptions[name] = cls
-
     async def get_host(self) -> str:
         '''
         Returns host url
@@ -135,19 +125,19 @@ class Client:
         corresponding service's host and saves it to self._host
         '''
         if self.__resolving:
-            log.debug('Host resolution already under way -- awaiting host resolution...')
+            self.log.debug('Host resolution already under way -- awaiting host resolution...')
             await self._wait_for_host_resolution()
             return
-        log.warning('Host resolution triggered...')
+        self.log.warning('Host resolution triggered...')
         self.__resolving = True
         self.__resolved = asyncio.Event()
         async with CrossRoads(self.env) as crossroads:
             host = await crossroads.get(self._service_name)
-            log.info("Resolved %s's host to %r [name=%r env=%r]",
-                     self.__class__.__name__,
-                     host,
-                     self._service_name,
-                     self.env)
+            self. log.info("Resolved %s's host to %r [name=%r env=%r]",
+                           self.__class__.__name__,
+                           host,
+                           self._service_name,
+                           self.env)
             self._host = host
             self.__resolving = False
             self.__resolved.set()
@@ -166,7 +156,7 @@ class Client:
         if (str_status in retry_codes
                 or f'{str_status[:2]}x' in retry_codes
                 or f'{str_status[:1]}xx' in retry_codes):
-            log.warning(f'Received response {response} -- retrying...')
+            self.log.warning(f'Received response {response} -- retrying...')
             raise ShouldRetry(response)
 
     @contextmanager
@@ -180,7 +170,7 @@ class Client:
         '''Manages all request dispatches'''
         base_url = await self.get_base_url()
         url = f'{base_url}{path}'
-        log.info('[%r] Getting url %r', datetime.now().strftime('%H:%M:%S.%f'), url)
+        self.log.info('[%r] Getting url %r', datetime.now().strftime('%H:%M:%S.%f'), url)
         with self._check_error():
             res = await self._session.request(method, url, **kw)
             self._check_status(res)
