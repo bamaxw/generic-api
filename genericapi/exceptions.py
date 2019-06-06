@@ -41,9 +41,10 @@ class SerializableException(Exception):
     As a http response
     '''
     _http_status: int
+    exc_args: list = []
+    exc_kwargs: Dict[str, Any] = {}
     def __new__(cls, *a, **kw) -> SerializableException:
         instance = super().__new__(cls, *a, **kw)
-        print(instance, cls, a, kw)
         instance.exc_args = list(a)
         instance.exc_kwargs = dict(kw)
         return instance
@@ -52,8 +53,6 @@ class SerializableException(Exception):
         super().__init__(message)
         self.http_status = code or self._http_status
         self.response_status = status
-        self.exc_args: list = []
-        self.exc_kwargs: Dict[str, Any] = {}
 
     @classmethod
     def get_response(cls, exc: Exception) -> Response:
