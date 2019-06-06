@@ -194,7 +194,7 @@ class Client:
                 try:
                     payload = await res.json(loads=json.loads)
                     try:
-                        raise SerializableException.unserialize_exc(payload)
+                        raise SerializableException.deserialize_exc(payload, status=res.status)
                     except NotAnError:
                         pass
                 except ContentTypeError:
