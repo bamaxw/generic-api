@@ -45,7 +45,7 @@ class SerializableException(Exception):
         instance = super().__new__(cls, *a, **kw)
         print(instance, cls, a, kw)
         instance.exc_args = list(a)
-        instance.exc_kwargs = kw
+        instance.exc_kwargs = dict(kw)
         return instance
 
     def __init__(self, message: str, code: int = 0, status: str = 'error') -> None:
