@@ -1,5 +1,7 @@
 from typing import Any, Dict
 from functools import wraps
+from pprint import pformat
+import importlib
 
 from aiohttp.web import json_response, Response
 
@@ -19,6 +21,13 @@ def with_exception_serializer(handler: AsyncRouteHandler) -> AsyncRouteHandler:
         except Exception as exc:  #  pylint: disable=broad-except
             return SerializableException.get_response(exc)
     return _wrapper
+
+
+class NotAnError(TypeError):
+    '''
+    Raised when a response that is not an error
+    is being deserialized
+    '''
 
 
 class SerializableException(Exception):
@@ -53,3 +62,18 @@ class SerializableException(Exception):
         return {'class': exc.__class__.__qualname__,
                 'module': exc.__class__.__module__,
                 'message': str(exc)}
+
+    @staticmethod
+    def deserialize_exc(exc_payload: Dict[str, Any], status: int) -> Exception:
+        if exc_payload.get('status') != 'error':
+            raise NotAnError()
+        exc = exc_payload.get('exc')
+        if exc is None:
+            raise ValueError(f'received an error response that is not deserializable!\n{pformat(exc_payload)}!')
+        exc_module = importlib.import_module(exc.pop('module'))
+        exc_class = getattr(exc_module, exc.pop('class'))
+        params = {'message': exc.pop('message')}
+        if exc:
+            params['code'] = status
+            params = dict(params, **exc)
+        return exc_class(**params)

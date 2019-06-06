@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from types import TracebackType
 from datetime import datetime
+import importlib
 import asyncio
 import logging
 
@@ -13,10 +14,10 @@ from aiologger import Logger
 
 from crossroads import CrossRoads
 
+from ..exceptions import SerializableException, NotAnError
 from ..json import json
-from .utils import cache_for, minutes
-from .config import SessionConfig, PolicyType
 from .signals import ShouldRetry, return_from_signal
+from .config import SessionConfig, PolicyType
 
 log = Logger.with_default_handlers()
 
@@ -187,15 +188,15 @@ class Client:
 
     @asynccontextmanager
     async def issue(self, method: str, path: str, **kw) -> AsyncIterator[Response]:
+        '''A generic request issue method'''
         async with await self.retriable_issue(method, path, **kw) as res:
             if res.status != 200:
                 try:
                     payload = await res.json(loads=json.loads)
-                    if (payload.get('status') == 'error'
-                            and payload.get('cls') is not None):
-                        cls = self.exceptions.get(payload.get('cls'))
-                        if cls is not None:
-                            raise cls(payload)
+                    try:
+                        raise SerializableException.unserialize_exc(payload)
+                    except NotAnError:
+                        pass
                 except ContentTypeError:
                     pass
             yield res
