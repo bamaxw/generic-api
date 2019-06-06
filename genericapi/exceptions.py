@@ -88,4 +88,4 @@ class SerializableException(Exception):
             raise ValueError(f'received an error response that is not deserializable!\n{pformat(exc_payload)}!')
         exc_module = importlib.import_module(exc.pop('module'))
         exc_class = getattr(exc_module, exc.pop('class'))
-        return exc_class(*exc['args'], **exc['kwargs'])
+        return exc_class(*exc.get('args') or (), **exc.get('kwargs') or {})
