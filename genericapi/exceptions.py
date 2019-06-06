@@ -72,8 +72,9 @@ class SerializableException(Exception):
             raise ValueError(f'received an error response that is not deserializable!\n{pformat(exc_payload)}!')
         exc_module = importlib.import_module(exc.pop('module'))
         exc_class = getattr(exc_module, exc.pop('class'))
-        params = {'message': exc.pop('message')}
+        message = exc.pop('message')
+        params: Dict[str, Any] = {}
         if exc:
+            params = exc
             params['code'] = status
-            params = dict(params, **exc)
-        return exc_class(**params)
+        return exc_class(message, **params)
