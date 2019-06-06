@@ -3,11 +3,14 @@ from typing import Any, Dict
 from functools import wraps
 from pprint import pformat
 import importlib
+import logging
 
 from aiohttp.web import json_response, Response
 
 from .types import AsyncRouteHandler
 from .json import json
+
+log = logging.getLogger(__name__)
 
 
 def with_exception_serializer(handler: AsyncRouteHandler) -> AsyncRouteHandler:
@@ -20,6 +23,7 @@ def with_exception_serializer(handler: AsyncRouteHandler) -> AsyncRouteHandler:
         try:
             return await handler(*a, **kw)
         except Exception as exc:  #  pylint: disable=broad-except
+            log.exception('exception caught -- serializing')
             return SerializableException.get_response(exc)
     return _wrapper
 
@@ -64,7 +68,7 @@ class SerializableException(Exception):
             payload['exc']['kwargs'] = exc.exc_kwargs
             status = exc.http_status
         else:
-            payload['exc']['args'] = str(exc)
+            payload['exc']['args'] = [str(exc)]
         return json_response(payload, status=status, dumps=json.dumps)
 
     @staticmethod
