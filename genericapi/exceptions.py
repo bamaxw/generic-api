@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Any, Dict
 from functools import wraps
 from pprint import pformat
@@ -36,11 +37,18 @@ class SerializableException(Exception):
     As a http response
     '''
     _http_status: int
-    def __init__(self, msg: str, code: int = 0, status: str = 'error', **params) -> None:
-        super().__init__(msg)
+    def __new__(cls, *a, **kw) -> SerializableException:
+        instance = cls(*a, **kw)
+        instance.exc_args = list(a)
+        instance.exc_kwargs = kw
+        return instance
+
+    def __init__(self, message: str, code: int = 0, status: str = 'error') -> None:
+        super().__init__(message)
         self.http_status = code or self._http_status
         self.response_status = status
-        self.response_params = params
+        self.exc_args: list = []
+        self.exc_kwargs: Dict[str, Any] = {}
 
     @classmethod
     def get_response(cls, exc: Exception) -> Response:
@@ -52,8 +60,11 @@ class SerializableException(Exception):
         if isinstance(exc, cls):
             payload['status'] = exc.response_status
             payload['message'] = payload['exc']['message']
-            payload['exc']['params'] = exc.response_params
+            payload['exc']['args'] = exc.exc_args
+            payload['exc']['kwargs'] = exc.exc_kwargs
             status = exc.http_status
+        else:
+            payload['exc']['args'] = str(exc)
         return json_response(payload, status=status, dumps=json.dumps)
 
     @staticmethod
@@ -72,8 +83,4 @@ class SerializableException(Exception):
             raise ValueError(f'received an error response that is not deserializable!\n{pformat(exc_payload)}!')
         exc_module = importlib.import_module(exc.pop('module'))
         exc_class = getattr(exc_module, exc.pop('class'))
-        message = exc.pop('message')
-        params = exc.get('params') or {}
-        if params:
-            params['code'] = status
-        return exc_class(message, **params)
+        return exc_class(*exc['args'], **exc['kwargs'])
