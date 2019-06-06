@@ -105,6 +105,7 @@ class Client:
     async def close(self) -> None:
         '''Close underlying async connections'''
         await self._session.close()
+        await self.log.shutdown()
 
     async def get_host(self) -> str:
         '''

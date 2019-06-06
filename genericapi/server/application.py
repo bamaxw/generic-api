@@ -47,6 +47,7 @@ class API(Application):
     async def open(self) -> 'API':
         await self.setup()
         self.log.info('Application %r setup completed...', self.name)
+        await self.log.shutdown()
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
