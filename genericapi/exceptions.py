@@ -73,8 +73,7 @@ class SerializableException(Exception):
         exc_module = importlib.import_module(exc.pop('module'))
         exc_class = getattr(exc_module, exc.pop('class'))
         message = exc.pop('message')
-        params: Dict[str, Any] = {}
-        if exc:
-            params = exc
+        params = exc.get('params') or {}
+        if params:
             params['code'] = status
         return exc_class(message, **params)
