@@ -42,7 +42,7 @@ class SerializableException(Exception):
     '''
     _http_status: int
     def __new__(cls, *a, **kw) -> SerializableException:
-        instance = cls(*a, **kw)
+        instance = super().__new__(*a, **kw)
         instance.exc_args = list(a)
         instance.exc_kwargs = kw
         return instance
