@@ -29,6 +29,7 @@ class Client:
     # Client attributes
     __slots__ = ('_service_name', '_prefix', '_host', 'env', 'config', '__resolving',
                  '__resolved', '_static', '_session', 'retriable_issue', 'log')
+    https: bool = False
     host: Optional[str] = None
     service_name: Optional[str] = None
     prefix: str = ''
@@ -44,6 +45,7 @@ class Client:
                  service_name: Optional[str] = None,
                  prefix: str = '',
                  host: Optional[str] = None,
+                 https: Optional[bool] = None,
                  config: Union[None, Dict[str, Any], SessionConfig] = None) -> None:
         # Validate arguments
         if self.service_name and service_name:
@@ -81,6 +83,7 @@ class Client:
         self._host = host
         self._service_name = service_name
         self._prefix = prefix
+        self._https = https if https is not None else self.https
         self.env = env
         self.config = session_config
         self.retriable_issue = return_from_signal(retry(**self.config.retry_policy,
@@ -134,7 +137,7 @@ class Client:
         log.warning('Host resolution triggered...')
         self.__resolving = True
         self.__resolved = asyncio.Event()
-        async with CrossRoads(self.env) as crossroads:
+        async with CrossRoads(self.env, https=self._https) as crossroads:
             host = await crossroads.get(self._service_name)
             log.info("Resolved %s's host to %r [name=%r env=%r]",
                      self.__class__.__name__,
