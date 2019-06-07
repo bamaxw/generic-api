@@ -8,6 +8,7 @@ test:
 
 upload: test vpatch
 	devpi upload
+	rm -r dist
 
 install-locally:
 	pip install -U .
