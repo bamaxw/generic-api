@@ -81,6 +81,12 @@ class API(Application):
             logging.getLogger().setLevel(self.config('log_level'))
         else:
             logging.basicConfig(level=self.config('log_level'))
+            logging.getLogger('boto3').setLevel(max(logging.INFO,
+                                                    logging.getLevelName(self.config('log_level'))))
+            logging.getLogger('botocore').setLevel(max(logging.INFO,
+                                                       logging.getLevelName(self.config('log_level'))))
+            logging.getLogger('aiobotocore').setLevel(max(logging.INFO,
+                                                          logging.getLevelName(self.config('log_level'))))
 
     def setup_swagger(self) -> None:
         '''Setup swagger if its enabled'''
