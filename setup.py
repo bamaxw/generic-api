@@ -24,5 +24,4 @@ setup(name="genericapi",
                         'aiohttp_swagger',
                         'envparse',
                         'aiohttp_cors',
-                        'tenacity',
-                        'crossroads'])
+                        'tenacity'])
