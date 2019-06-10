@@ -9,7 +9,7 @@ from aiohttp.web import json_response, Response
 from aiohttp import ClientResponse
 
 from .types import AsyncRouteHandler
-from .json import json
+from .json import autojson
 
 log = logging.getLogger(__name__)
 
@@ -32,9 +32,9 @@ def with_exception_serializer(handler: AsyncRouteHandler) -> AsyncRouteHandler:
 async def from_error_res(res: ClientResponse, blame: str = 'server') -> Exception:
     '''Turns a serializable-error response into a serializable error'''
     try:
-        payload = await res.json(loads=json.loads)
+        payload = await res.json(loads=autojson.loads)
     except ValueError:
-        log.exception('Received non-json error response:\n%s', await res.text())
+        log.exception('Received non-autojson error response:\n%s', await res.text())
     return SerializableException.deserialize_exc(payload, status=res.status)
 
 
@@ -79,7 +79,7 @@ class SerializableException(Exception):
             status = exc.http_status
         else:
             payload['exc']['args'] = [str(exc)]
-        return json_response(payload, status=status, dumps=json.dumps)
+        return json_response(payload, status=status, dumps=autojson.dumps)
 
     @staticmethod
     def serialize_exc(exc: Exception) -> Dict[str, str]:
