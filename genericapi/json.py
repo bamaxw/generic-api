@@ -1,7 +1,7 @@
 try:
-    import ujson as json
+    import ujson as autojson
 except ModuleNotFoundError:
     try:
-        import simplejson as json
+        import simplejson as autojson
     except ModuleNotFoundError:
-        import json
+        import autojson
