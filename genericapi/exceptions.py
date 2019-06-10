@@ -6,6 +6,7 @@ import importlib
 import logging
 
 from aiohttp.web import json_response, Response
+from aiohttp import ClientResponse
 
 from .types import AsyncRouteHandler
 from .json import json
@@ -26,6 +27,15 @@ def with_exception_serializer(handler: AsyncRouteHandler) -> AsyncRouteHandler:
             log.exception('exception caught -- serializing')
             return SerializableException.get_response(exc)
     return _wrapper
+
+
+async def from_error_res(res: ClientResponse) -> Exception:
+    '''Turns a serializable-error response into a serializable error'''
+    try:
+        payload = await res.json(loads=json.loads)
+    except ValueError:
+        log.exception('Received non-json error response:\n%s', await res.text())
+    return SerializableException.deserialize_exc(payload, status=res.status)
 
 
 class NotAnError(TypeError):
