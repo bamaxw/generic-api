@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 
 class Client(RequestEngine):
-    __slots__ = RequestEngine.__slots__ + ('host',)
+    __slots__ = RequestEngine.__slots__
     host: Optional[str] = None
     def __init__(self, host: Optional[str] = None) -> None:
         host = host or self.host
