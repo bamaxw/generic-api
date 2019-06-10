@@ -12,7 +12,7 @@ class RequestEngine:
     __slots__ = ('_baseurl', '_sess')
     def __init__(self, baseurl: str) -> None:
         self._baseurl = baseurl
-        self._sess: ClientSession
+        self._sess = ClientSession()
 
     async def __aenter__(self) -> RequestEngine:
         await self.open()
@@ -21,7 +21,6 @@ class RequestEngine:
     async def open(self) -> None:
         '''Opens aiohttp.ClientSession'''
         aiolog.start(loop=asyncio.get_event_loop())
-        self._sess = ClientSession()
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
         await self.close()
