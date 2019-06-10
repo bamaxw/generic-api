@@ -29,7 +29,7 @@ def with_exception_serializer(handler: AsyncRouteHandler) -> AsyncRouteHandler:
     return _wrapper
 
 
-async def from_error_res(res: ClientResponse) -> Exception:
+async def from_error_res(res: ClientResponse, blame: str = 'server') -> Exception:
     '''Turns a serializable-error response into a serializable error'''
     try:
         payload = await res.json(loads=json.loads)
