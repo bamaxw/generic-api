@@ -57,7 +57,7 @@ class RouteManager:
              cors    -- pass cors config to override the default cors'''
         route = self.app.router.add_route(method=method,
                                           path=f'{self.root}{path}',
-                                          handler=with_exception_serializer(handler),
+                                          handler=handler,
                                           name=name)
         _cors = self._get_cors_config(cors, no_cors)
         if _cors:
