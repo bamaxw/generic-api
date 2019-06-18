@@ -86,3 +86,7 @@ class HTTPOk(aiohttp.web.HTTPOk):
 #  5xx
 class HTTPServiceUnavailable(HTTPError, aiohttp.web.HTTPServiceUnavailable):
     '''ServiceUnavailable 503'''
+
+
+class HTTPInternalServerError(HTTPError, aiohttp.web.HTTPInternalServerError):
+    '''InternalServerError 500'''
