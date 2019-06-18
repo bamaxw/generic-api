@@ -8,8 +8,8 @@ import logging
 from aiohttp.web import json_response, Response
 from aiohttp import ClientResponse
 
-from .types import AsyncRouteHandler
-from .json import autojson
+from ..types import AsyncRouteHandler
+from ..json import autojson
 
 log = logging.getLogger(__name__)
 
