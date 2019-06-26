@@ -14,7 +14,7 @@ publish:
 	twine upload --repository-url https://pypi.inyourarea.co.uk/inyourarea/prod dist/*
 	rm -r dist
 	rm -r build
-	rm -r jigsawdb.egg-info
+	rm -r genericapi.egg-info
 
 vpatch:
 	bumpversion patch

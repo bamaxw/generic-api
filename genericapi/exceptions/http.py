@@ -69,6 +69,9 @@ class HTTPGone(HTTPError, aiohttp.web.HTTPGone):
 class HTTPTooManyRequests(HTTPError, aiohttp.web.HTTPTooManyRequests):
     '''TooManyRequests 429'''
 
+class HTTPFailedDependency(HTTPError, aiohttp.web.HTTPFailedDependency):
+    '''FailedDependency 424'''
+
 
 #  2xx
 class HTTPOk(aiohttp.web.HTTPOk):
