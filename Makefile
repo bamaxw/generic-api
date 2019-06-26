@@ -6,15 +6,15 @@ test:
 	echo "no tests"
 	# python -m green -ar tests/*.py
 
-upload: test vpatch
-	devpi upload
-	rm -r dist
-
-install-locally:
-	pip install -U .
+upload: vpatch
+	pipenv run python setup.py bdist_wheel
+	twine upload --repository-url https://pypi.inyourarea.co.uk/inyourarea/staging dist/*
 
 publish:
-	devpi push "$(package-name)==$(version)" "inyourarea/prod"
+	twine upload --repository-url https://pypi.inyourarea.co.uk/inyourarea/prod dist/*
+	rm -r dist
+	rm -r build
+	rm -r jigsawdb.egg-info
 
 vpatch:
 	bumpversion patch
