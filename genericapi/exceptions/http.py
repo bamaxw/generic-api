@@ -66,6 +66,9 @@ class HTTPConflict(HTTPError, aiohttp.web.HTTPConflict):
 class HTTPGone(HTTPError, aiohttp.web.HTTPGone):
     '''Gone 410'''
 
+class HTTPTooManyRequests(HTTPError, aiohttp.web.HTTPTooManyRequests):
+    '''TooManyRequests 429'''
+
 
 #  2xx
 class HTTPOk(aiohttp.web.HTTPOk):
